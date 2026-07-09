@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © MageDevGroup. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <!-- Extend admin-sso's section with the Entra-specific OIDC settings. -->
+        <section id="magedevgroup_admin_sso">
+            <group id="azure" translate="label comment" type="text" sortOrder="30"
+                   showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Microsoft Entra ID</label>
+                <comment>Shown only when Microsoft Entra ID is the selected identity provider.</comment>
+                <depends>
+                    <field id="magedevgroup_admin_sso/general/enabled">1</field>
+                    <field id="magedevgroup_admin_sso/general/active_provider">azure</field>
+                </depends>
+                <field id="tenant" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Tenant</label>
+                    <comment><![CDATA[Directory (tenant) GUID or a verified domain of your Entra
+                        directory. Single-tenant only; the multi-tenant meta values
+                        (<code>common</code>/<code>organizations</code>) are not supported for admin
+                        SSO. Feeds the OIDC discovery URL.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
