@@ -1,4 +1,4 @@
-# MageDevGroup_AdminSsoAzure
+# DmLab_AdminSsoAzure
 
 > Microsoft Entra ID (Azure AD) login for the Magento 2 admin panel.
 
@@ -9,8 +9,8 @@ A thin Microsoft Entra ID provider plugin for the provider-agnostic `admin-sso` 
 ## Installation
 
 ```bash
-composer require magedevgroup/module-admin-sso-azure
-bin/magento module:enable MageDevGroup_SsoCore MageDevGroup_AdminSso MageDevGroup_AdminSsoAzure
+composer require dmlab/module-admin-sso-azure
+bin/magento module:enable DmLab_SsoCore DmLab_AdminSso DmLab_AdminSsoAzure
 bin/magento setup:upgrade
 ```
 
@@ -32,9 +32,9 @@ In the [Azure portal](https://portal.azure.com) → **Microsoft Entra ID → App
 
 ## Configuration
 
-Admin → Stores → Configuration → **MageDevGroup → Admin SSO**.
+Admin → Stores → Configuration → **DMLab → Admin SSO**.
 
-**General** (`magedevgroup_admin_sso/general/*`):
+**General** (`dmlab_admin_sso/general/*`):
 
 | Field | Value |
 |---|---|
@@ -43,7 +43,7 @@ Admin → Stores → Configuration → **MageDevGroup → Admin SSO**.
 | Client ID | Application (client) ID from the Entra app |
 | Client Secret | client secret value from the Entra app |
 
-**Microsoft Entra ID** (`magedevgroup_admin_sso/azure/*`, shown when Entra is selected):
+**Microsoft Entra ID** (`dmlab_admin_sso/azure/*`, shown when Entra is selected):
 
 | Field | Value |
 |---|---|
@@ -72,7 +72,7 @@ groups assigned to the application.
 - Magento **2.4.x**
 - PHP **8.3 – 8.5**
 
-## Part of the MageDevGroup identity suite
+## Part of the DMLab identity suite
 
 | Repo | Role |
 |------|------|
@@ -83,4 +83,4 @@ groups assigned to the application.
 
 ## License
 
-[OSL-3.0](LICENSE) © MageDevGroup. Commercial licensing and support: <https://magedevgroup.com>.
+[OSL-3.0](LICENSE) © DMLab. Commercial licensing and support: <https://dmlab.work>.

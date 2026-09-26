@@ -1,10 +1,10 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Model;
+namespace DmLab\AdminSsoAzure\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
@@ -19,7 +19,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 class Config
 {
     /** Entra tenant: directory GUID or verified domain (single-tenant only). */
-    public const XML_PATH_TENANT = 'magedevgroup_admin_sso/azure/tenant';
+    public const XML_PATH_TENANT = 'dmlab_admin_sso/azure/tenant';
 
     /**
      * @param ScopeConfigInterface $scopeConfig

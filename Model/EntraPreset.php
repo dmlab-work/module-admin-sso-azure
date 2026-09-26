@@ -1,12 +1,12 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Model;
+namespace DmLab\AdminSsoAzure\Model;
 
-use MageDevGroup\SsoCore\Api\ProviderPresetInterface;
+use DmLab\SsoCore\Api\ProviderPresetInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 
 /**
@@ -47,7 +47,7 @@ class EntraPreset implements ProviderPresetInterface
     private const BUTTON_LABEL = 'Sign in with Microsoft';
 
     /** Module-relative asset id of the login-button logo. */
-    private const ICON_ASSET = 'MageDevGroup_AdminSsoAzure::images/microsoft.svg';
+    private const ICON_ASSET = 'DmLab_AdminSsoAzure::images/microsoft.svg';
 
     /**
      * @param Config $config

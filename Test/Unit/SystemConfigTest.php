@@ -1,13 +1,13 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Test\Unit;
+namespace DmLab\AdminSsoAzure\Test\Unit;
 
-use MageDevGroup\AdminSsoAzure\Model\Config;
-use MageDevGroup\AdminSsoAzure\Model\EntraPreset;
+use DmLab\AdminSsoAzure\Model\Config;
+use DmLab\AdminSsoAzure\Model\EntraPreset;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +35,7 @@ class SystemConfigTest extends TestCase
     public function testAzureGroupLivesUnderAdminSsoSection(): void
     {
         $groups = $this->xpath->query(
-            "/config/system/section[@id='magedevgroup_admin_sso']/group[@id='azure']"
+            "/config/system/section[@id='dmlab_admin_sso']/group[@id='azure']"
         );
 
         self::assertNotNull($groups);
@@ -45,7 +45,7 @@ class SystemConfigTest extends TestCase
     public function testTenantFieldMapsToConfigPath(): void
     {
         $fields = $this->xpath->query(
-            "/config/system/section[@id='magedevgroup_admin_sso']"
+            "/config/system/section[@id='dmlab_admin_sso']"
             . "/group[@id='azure']/field[@id='tenant']"
         );
 
@@ -77,7 +77,7 @@ class SystemConfigTest extends TestCase
     public function testAzureGroupDependsAreFullyQualified(): void
     {
         $ids = $this->xpath->query(
-            "/config/system/section[@id='magedevgroup_admin_sso']"
+            "/config/system/section[@id='dmlab_admin_sso']"
             . "/group[@id='azure']/depends/field/@id"
         );
 
@@ -86,8 +86,8 @@ class SystemConfigTest extends TestCase
             $paths[] = $attr->value;
         }
 
-        self::assertContains('magedevgroup_admin_sso/general/enabled', $paths);
-        self::assertContains('magedevgroup_admin_sso/general/active_provider', $paths);
+        self::assertContains('dmlab_admin_sso/general/enabled', $paths);
+        self::assertContains('dmlab_admin_sso/general/active_provider', $paths);
         foreach ($paths as $path) {
             self::assertSame(3, count(explode('/', $path)), "Depend '$path' is not fully qualified.");
         }

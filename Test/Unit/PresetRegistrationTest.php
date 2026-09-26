@@ -1,12 +1,12 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Test\Unit;
+namespace DmLab\AdminSsoAzure\Test\Unit;
 
-use MageDevGroup\AdminSsoAzure\Model\EntraPreset;
+use DmLab\AdminSsoAzure\Model\EntraPreset;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PresetRegistrationTest extends TestCase
 {
-    private const REGISTRY = 'MageDevGroup\\AdminSso\\Model\\PresetRegistry';
+    private const REGISTRY = 'DmLab\\AdminSso\\Model\\PresetRegistry';
 
     public function testDiXmlRegistersEntraPresetIntoPresetRegistry(): void
     {

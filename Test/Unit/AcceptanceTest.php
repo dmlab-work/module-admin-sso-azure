@@ -1,22 +1,22 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Test\Unit;
+namespace DmLab\AdminSsoAzure\Test\Unit;
 
-use MageDevGroup\AdminSso\Model\ActiveProviderResolver;
-use MageDevGroup\AdminSso\Model\Config as AdminSsoConfig;
-use MageDevGroup\AdminSso\Model\Config\Source\ActiveProvider;
-use MageDevGroup\AdminSso\Model\Oidc\AuthorizationStarter;
-use MageDevGroup\AdminSso\Model\PresetRegistry;
-use MageDevGroup\AdminSsoAzure\Model\Config as AzureConfig;
-use MageDevGroup\AdminSsoAzure\Model\EntraPreset;
-use MageDevGroup\SsoCore\Api\AuthorizationStateStorageInterface;
-use MageDevGroup\SsoCore\Model\Oidc\AuthorizationRequestFactory;
-use MageDevGroup\SsoCore\Model\Oidc\DiscoveryClient;
-use MageDevGroup\SsoCore\Model\Oidc\ProviderMetadata;
+use DmLab\AdminSso\Model\ActiveProviderResolver;
+use DmLab\AdminSso\Model\Config as AdminSsoConfig;
+use DmLab\AdminSso\Model\Config\Source\ActiveProvider;
+use DmLab\AdminSso\Model\Oidc\AuthorizationStarter;
+use DmLab\AdminSso\Model\PresetRegistry;
+use DmLab\AdminSsoAzure\Model\Config as AzureConfig;
+use DmLab\AdminSsoAzure\Model\EntraPreset;
+use DmLab\SsoCore\Api\AuthorizationStateStorageInterface;
+use DmLab\SsoCore\Model\Oidc\AuthorizationRequestFactory;
+use DmLab\SsoCore\Model\Oidc\DiscoveryClient;
+use DmLab\SsoCore\Model\Oidc\ProviderMetadata;
 use Magento\Backend\Model\UrlInterface as BackendUrlInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Math\Random;

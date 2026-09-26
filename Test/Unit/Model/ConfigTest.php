@@ -1,12 +1,12 @@
 <?php
 /**
- * Copyright © MageDevGroup. All rights reserved.
+ * Copyright © DMLab. All rights reserved.
  */
 declare(strict_types=1);
 
-namespace MageDevGroup\AdminSsoAzure\Test\Unit\Model;
+namespace DmLab\AdminSsoAzure\Test\Unit\Model;
 
-use MageDevGroup\AdminSsoAzure\Model\Config;
+use DmLab\AdminSsoAzure\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use PHPUnit\Framework\TestCase;
 
