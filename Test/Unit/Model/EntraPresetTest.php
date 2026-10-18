@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright © DMLab. All rights reserved.
+ * Licensed under the Open Software License version 3.0 (OSL-3.0). See LICENSE.
  */
 declare(strict_types=1);
 
@@ -8,9 +9,12 @@ namespace DmLab\AdminSsoAzure\Test\Unit\Model;
 
 use DmLab\AdminSsoAzure\Model\Config;
 use DmLab\AdminSsoAzure\Model\EntraPreset;
+use DmLab\SsoCore\Api\DiscoveryIssuerPolicyInterface;
+use DmLab\SsoCore\Api\EmailVerificationResolverInterface;
 use DmLab\SsoCore\Api\ProviderPresetInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EntraPresetTest extends TestCase
@@ -182,5 +186,92 @@ class EntraPresetTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->preset->buildDiscoveryUrl(['tenant' => '   ']);
+    }
+
+    public function testImplementsEmailVerificationResolver(): void
+    {
+        self::assertInstanceOf(EmailVerificationResolverInterface::class, $this->preset);
+    }
+
+    /**
+     * @return array<string,array{array<string,mixed>,bool}>
+     */
+    public static function emailVerifiedCases(): array
+    {
+        return [
+            'xms_edov true' => [['xms_edov' => true], true],
+            'xms_edov 1' => [['xms_edov' => 1], true],
+            'xms_edov "1"' => [['xms_edov' => '1'], true],
+            'xms_edov "TRUE"' => [['xms_edov' => 'TRUE'], true],
+            'xms_edov missing' => [[], false],
+            'xms_edov false' => [['xms_edov' => false], false],
+            'xms_edov 0' => [['xms_edov' => 0], false],
+            'xms_edov "0"' => [['xms_edov' => '0'], false],
+            'xms_edov array' => [['xms_edov' => [true]], false],
+            'email_verified ignored' => [['email' => 'a@contoso.com', 'email_verified' => true], false],
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $claims
+     */
+    #[DataProvider('emailVerifiedCases')]
+    public function testResolveEmailVerifiedFromXmsEdovOnly(array $claims, bool $expected): void
+    {
+        $result = $this->preset->resolveEmailVerified($claims);
+
+        self::assertNotNull($result);
+        self::assertSame($expected, $result);
+    }
+
+    public function testImplementsDiscoveryIssuerPolicy(): void
+    {
+        self::assertInstanceOf(DiscoveryIssuerPolicyInterface::class, $this->preset);
+    }
+
+    /**
+     * @return array<string,array{string,bool}>
+     */
+    public static function issuerMatchCases(): array
+    {
+        return [
+            'GUID lower case' => ['11111111-2222-3333-4444-55555555aaaa', true],
+            'GUID upper case' => ['11111111-2222-3333-4444-55555555AAAA', true],
+            'GUID with slashes' => [' /11111111-2222-3333-4444-555555555555/ ', true],
+            'custom domain' => ['contoso.com', false],
+            'onmicrosoft domain' => ['contoso.onmicrosoft.com', false],
+            'blank' => ['', true],
+            'whitespace only' => ['  ', true],
+        ];
+    }
+
+    #[DataProvider('issuerMatchCases')]
+    public function testRequiresIssuerMatchOnlyForNonDomainTenant(string $tenant, bool $expected): void
+    {
+        self::assertSame($expected, $this->preset->requiresIssuerMatch(['tenant' => $tenant]));
+    }
+
+    public function testRequiresIssuerMatchFallsBackToStoredTenant(): void
+    {
+        self::assertFalse(
+            $this->preset([Config::XML_PATH_TENANT => 'contoso.com'])->requiresIssuerMatch([])
+        );
+        self::assertTrue(
+            $this->preset([Config::XML_PATH_TENANT => '11111111-2222-3333-4444-555555555555'])
+                ->requiresIssuerMatch([])
+        );
+    }
+
+    public function testRequiresIssuerMatchWithNoTenantAnywhereIsStrict(): void
+    {
+        self::assertTrue($this->preset->requiresIssuerMatch([]));
+    }
+
+    public function testRequiresIssuerMatchExplicitTenantOverridesStoredValue(): void
+    {
+        $preset = $this->preset([Config::XML_PATH_TENANT => 'contoso.com']);
+
+        self::assertTrue($preset->requiresIssuerMatch(['tenant' => '11111111-2222-3333-4444-555555555555']));
+        self::assertTrue($preset->requiresIssuerMatch(['tenant' => '']));
     }
 }

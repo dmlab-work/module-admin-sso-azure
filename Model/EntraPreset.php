@@ -1,11 +1,14 @@
 <?php
 /**
  * Copyright © DMLab. All rights reserved.
+ * Licensed under the Open Software License version 3.0 (OSL-3.0). See LICENSE.
  */
 declare(strict_types=1);
 
 namespace DmLab\AdminSsoAzure\Model;
 
+use DmLab\SsoCore\Api\DiscoveryIssuerPolicyInterface;
+use DmLab\SsoCore\Api\EmailVerificationResolverInterface;
 use DmLab\SsoCore\Api\ProviderPresetInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 
@@ -22,7 +25,10 @@ use Magento\Framework\View\Asset\Repository as AssetRepository;
  * the config array passed to {@see buildDiscoveryUrl} overrides the stored one,
  * keeping the URL a pure function of its inputs where the caller supplies them.
  */
-class EntraPreset implements ProviderPresetInterface
+class EntraPreset implements
+    ProviderPresetInterface,
+    EmailVerificationResolverInterface,
+    DiscoveryIssuerPolicyInterface
 {
     /** Stable machine code identifying Entra across the suite. */
     private const CODE = 'azure';
@@ -42,6 +48,12 @@ class EntraPreset implements ProviderPresetInterface
     /** Entra's tenant-scoped OIDC discovery endpoint (v2.0). */
     private const DISCOVERY_TEMPLATE =
         'https://login.microsoftonline.com/%s/v2.0/.well-known/openid-configuration';
+
+    /** Entra optional claim: true only when the email domain is verified in the tenant. */
+    private const CLAIM_EMAIL_DOMAIN_VERIFIED = 'xms_edov';
+
+    /** Directory (tenant) GUID; any other single-tenant value is a verified domain. */
+    private const TENANT_GUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 
     /** Login-button label shown on the admin login page. */
     private const BUTTON_LABEL = 'Sign in with Microsoft';
@@ -91,10 +103,7 @@ class EntraPreset implements ProviderPresetInterface
      */
     public function buildDiscoveryUrl(array $config): string
     {
-        $tenant = trim(
-            $this->resolve($config, self::CONFIG_TENANT, $this->config->getTenant()),
-            " \t/"
-        );
+        $tenant = $this->resolveTenant($config);
         if ($tenant === '') {
             throw new \InvalidArgumentException('The Entra tenant is not configured.');
         }
@@ -147,20 +156,49 @@ class EntraPreset implements ProviderPresetInterface
     }
 
     /**
-     * Resolve a config value: an explicit key in the passed array wins (even if
-     * blank, so a caller can intentionally clear it), otherwise fall back to the
-     * stored admin config value.
+     * @inheritDoc
      *
-     * @param array<string,mixed> $config
-     * @param string $key
-     * @param string|null $fallback
+     * Entra's `email` is tenant-mutable, so only `xms_edov` counts; never null, so the
+     * raw `email_verified` claim is never consulted.
      */
-    private function resolve(array $config, string $key, ?string $fallback): string
+    public function resolveEmailVerified(array $claims): ?bool
     {
-        if (array_key_exists($key, $config)) {
-            return (string)$config[$key];
+        $value = $claims[self::CLAIM_EMAIL_DOMAIN_VERIFIED] ?? null;
+        if ($value === true || $value === 1) {
+            return true;
         }
 
-        return (string)($fallback ?? '');
+        return is_string($value) && in_array(strtolower($value), ['1', 'true'], true);
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * A domain tenant's discovery document advertises the tenant-GUID issuer, so the
+     * discovery issuer can only match for a GUID tenant. The token `iss` is still
+     * validated against the advertised issuer.
+     */
+    public function requiresIssuerMatch(array $config): bool
+    {
+        $tenant = $this->resolveTenant($config);
+
+        return $tenant === '' || preg_match(self::TENANT_GUID_PATTERN, $tenant) === 1;
+    }
+
+    /**
+     * Resolve the tenant trimmed of surrounding whitespace and slashes.
+     *
+     * An explicit config key wins (even if blank, so a caller can clear it), else
+     * the stored admin config value.
+     *
+     * @param array<string,mixed> $config
+     */
+    private function resolveTenant(array $config): string
+    {
+        $tenant = array_key_exists(self::CONFIG_TENANT, $config)
+            ? (string)$config[self::CONFIG_TENANT]
+            : (string)($this->config->getTenant() ?? '');
+
+        return trim($tenant, " \t/");
     }
 }

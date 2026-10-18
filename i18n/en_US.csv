@@ -1,0 +1,10 @@
+"Microsoft Entra ID","Microsoft Entra ID"
+"Shown only when Microsoft Entra ID is the selected identity provider.","Shown only when Microsoft Entra ID is the selected identity provider."
+"Tenant","Tenant"
+"Directory (tenant) GUID or a verified domain of your Entra
+                        directory. Single-tenant only; the multi-tenant meta values
+                        (<code>common</code>/<code>organizations</code>) are not supported for admin
+                        SSO. Feeds the OIDC discovery URL.","Directory (tenant) GUID or a verified domain of your Entra
+                        directory. Single-tenant only; the multi-tenant meta values
+                        (<code>common</code>/<code>organizations</code>) are not supported for admin
+                        SSO. Feeds the OIDC discovery URL."

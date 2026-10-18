@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright © DMLab. All rights reserved.
+ * Licensed under the Open Software License version 3.0 (OSL-3.0). See LICENSE.
  */
 declare(strict_types=1);
 
@@ -30,6 +31,19 @@ class RegistrationTest extends TestCase
 
     public function testModuleSequencesAfterAdminSso(): void
     {
+        self::assertContains('DmLab_AdminSso', $this->sequencedModules());
+    }
+
+    public function testModuleSequencesAfterSsoCore(): void
+    {
+        self::assertContains('DmLab_SsoCore', $this->sequencedModules());
+    }
+
+    /**
+     * @return string[]
+     */
+    private function sequencedModules(): array
+    {
         $paths = (new ComponentRegistrar())->getPaths(ComponentRegistrar::MODULE);
         $moduleXml = ($paths['DmLab_AdminSsoAzure'] ?? '') . '/etc/module.xml';
 
@@ -43,6 +57,6 @@ class RegistrationTest extends TestCase
             }
         }
 
-        self::assertContains('DmLab_AdminSso', $sequenced);
+        return $sequenced;
     }
 }

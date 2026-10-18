@@ -2,6 +2,7 @@
 <!--
 /**
  * Copyright © DMLab. All rights reserved.
+ * Licensed under the Open Software License version 3.0 (OSL-3.0). See LICENSE.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -13,5 +14,10 @@
                 <item name="azure" xsi:type="object">DmLab\AdminSsoAzure\Model\EntraPreset</item>
             </argument>
         </arguments>
+    </type>
+    <!-- JIT-only email fallback for Entra users without a `mail` attribute. -->
+    <type name="DmLab\SsoCore\Model\Oidc\IdentityFactory">
+        <plugin name="dmlab_admin_sso_azure_email_fallback"
+                type="DmLab\AdminSsoAzure\Plugin\EntraEmailFallback"/>
     </type>
 </config>
