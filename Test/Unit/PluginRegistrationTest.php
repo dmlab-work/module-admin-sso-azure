@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace DmLab\AdminSsoAzure\Test\Unit;
 
 use DmLab\AdminSsoAzure\Plugin\EntraEmailFallback;
+use DmLab\AdminSsoAzure\Plugin\EntraGroupsOverage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,16 +36,26 @@ class PluginRegistrationTest extends TestCase
         }
 
         self::assertContains(EntraEmailFallback::class, $declared);
+        self::assertContains(EntraGroupsOverage::class, $declared);
     }
 
-    public function testBeforeCreateMatchesSubjectSignature(): void
+    /**
+     * @return array<string,array{0:class-string}>
+     */
+    public static function plugins(): array
+    {
+        return ['email fallback' => [EntraEmailFallback::class], 'groups overage' => [EntraGroupsOverage::class]];
+    }
+
+    #[DataProvider('plugins')]
+    public function testBeforeCreateMatchesSubjectSignature(string $pluginClass): void
     {
         $signature = static fn (\ReflectionMethod $method): array => array_map(
             static fn (\ReflectionParameter $p): string => $p->getName() . ':' . $p->getType(),
             $method->getParameters()
         );
 
-        $plugin = $signature(new \ReflectionMethod(EntraEmailFallback::class, 'beforeCreate'));
+        $plugin = $signature(new \ReflectionMethod($pluginClass, 'beforeCreate'));
 
         self::assertSame(
             $signature(new \ReflectionMethod(self::SUBJECT, 'create')),

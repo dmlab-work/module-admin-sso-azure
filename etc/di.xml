@@ -19,5 +19,8 @@
     <type name="DmLab\SsoCore\Model\Oidc\IdentityFactory">
         <plugin name="dmlab_admin_sso_azure_email_fallback"
                 type="DmLab\AdminSsoAzure\Plugin\EntraEmailFallback"/>
+        <!-- Implicit-flow groups overage (`hasgroups`) → incomplete groups, login refused. -->
+        <plugin name="dmlab_admin_sso_azure_groups_overage"
+                type="DmLab\AdminSsoAzure\Plugin\EntraGroupsOverage"/>
     </type>
 </config>

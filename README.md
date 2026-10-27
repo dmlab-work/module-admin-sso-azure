@@ -79,14 +79,14 @@ If a user has no `mail` attribute (no `email` claim), `preferred_username`, then
 used as the email when it is a valid address. Such an identity is always unverified: it
 can JIT-create a new admin; if an admin with that email already exists, the login is refused.
 
-### Group overage limitation
+### Groups overage
 
-Entra omits the `groups` claim when a user belongs to more than ~200 groups, sending
-a `_claim_names`/`_claim_sources` overage reference to Microsoft Graph instead. The
-module reads the `groups` claim directly, so such users get no group-based roles and fall
-back to the default role (login refused if none is set). A Graph fallback is a future task. Keep affected admins
-under the overage limit, or scope the groups claim (Token configuration) to the
-groups assigned to the application.
+Entra omits the `groups` claim when a user belongs to more than ~200 groups, sending a
+`_claim_names`/`_claim_sources` reference to Microsoft Graph instead (or `hasgroups: true`
+in the implicit flow). The groups are then incomplete, so the SSO login is **refused** with a
+message instead of falling back to the default role; groups are not fetched from Graph. Limit the
+groups in the token: in the app registration's Token configuration emit **Groups assigned to the
+application** (and assign the role groups to the enterprise app), or use group filtering.
 
 ## Requirements
 
