@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- **Groups overage refuses the login** with a message (was: fall back to the default role); the implicit-flow `hasgroups` claim is handled too.
+- Requires `dmlab/module-admin-sso ^0.2.2` / `dmlab/module-sso-core ^0.2.2`.
+
 ## 0.2.0
 
 - **Verified email from `xms_edov`**: Entra's `email` claim counts as verified only when the `xms_edov` optional claim is true; `email_verified` is ignored. Without `xms_edov` existing admins are never adopted by email.
