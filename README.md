@@ -4,12 +4,16 @@
 
 [![CI](https://github.com/dmlab-work/module-admin-sso-azure/actions/workflows/ci.yml/badge.svg)](https://github.com/dmlab-work/module-admin-sso-azure/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/dmlab-work/module-admin-sso-azure/graph/badge.svg)](https://codecov.io/gh/dmlab-work/module-admin-sso-azure) [![Packagist Version](https://img.shields.io/packagist/v/dmlab/module-admin-sso-azure)](https://packagist.org/packages/dmlab/module-admin-sso-azure) [![Downloads](https://img.shields.io/packagist/dt/dmlab/module-admin-sso-azure)](https://packagist.org/packages/dmlab/module-admin-sso-azure) [![PHP](https://img.shields.io/packagist/dependency-v/dmlab/module-admin-sso-azure/php)](https://packagist.org/packages/dmlab/module-admin-sso-azure) [![License](https://img.shields.io/packagist/l/dmlab/module-admin-sso-azure)](LICENSE) ![Magento](https://img.shields.io/badge/Magento-2.4-orange)
 
-A thin Microsoft Entra ID provider plugin for the provider-agnostic `admin-sso` capability. It supplies the Entra OIDC preset — discovery from your tenant, scopes, `groups` claim, login-button branding — while all OIDC protocol lives in `sso-core` and all admin logic in `admin-sso`. Installing it pulls `admin-sso` and `sso-core` automatically.
+Your team signs in to the Magento admin with their Microsoft work account — a "Sign in with Microsoft" button on
+the admin login page. Admin accounts are created on first sign-in and get their role from Entra ID groups, so there
+are no separate Magento passwords to manage. Free, no user cap.
 
-## Installation
+![Microsoft Entra ID settings for Magento admin SSO: tenant ID or verified domain](.github/images/config.png)
+
+## Install
 
 ```bash
-composer require dmlab/module-admin-sso-azure
+composer require dmlab/module-admin-sso-azure  # also installs Admin SSO and the SSO engine
 bin/magento module:enable DmLab_SsoCore DmLab_AdminSso DmLab_AdminSsoAzure
 bin/magento setup:upgrade
 ```
@@ -18,89 +22,76 @@ bin/magento setup:upgrade
 
 In the [Azure portal](https://portal.azure.com) → **Microsoft Entra ID → App registrations → New registration**:
 
-1. **Supported account types** — **Accounts in this organizational directory only**
-   (single tenant). Multi-tenant admin login is not supported (see Tenant below).
-2. **Redirect URI** — platform **Web**, value = the `admin-sso` callback:
-   `https://<admin-host>/<admin-path>/adminsso/sso/callback`
-   (`<admin-path>` is the backend frontName, default `admin`). It must match the
-   admin URL used at runtime exactly.
+1. **Supported account types**: **Accounts in this organizational directory only** (single tenant).
+   Multi-tenant admin login is not supported.
+2. **Redirect URI**: platform **Web**, value `https://<admin-host>/<admin-path>/adminsso/sso/callback`
+   (`<admin-path>` is the backend frontName, default `admin`). It must exactly match the admin URL used at runtime.
 3. Register, then copy the **Application (client) ID** and the **Directory (tenant) ID**.
-4. **Certificates & secrets → New client secret** — copy the secret **value**.
-5. **Groups claim** — for IdP-group → ACL-role mapping, **Token configuration →
-   Add groups claim**, and emit it on the **ID** token. Without this Entra sends no
-   groups and role mapping falls back to the `admin-sso` default role (login refused
-   if none is set). Entra sends group
-   **object IDs (GUIDs)**, not names — use those GUIDs as keys in the `admin-sso`
-   group → role map.
-6. **Email verification** — **Token configuration → Add optional claim → ID →
-   `xms_edov`**. Entra's `email` claim is tenant-editable, so it counts as verified only
-   when `xms_edov` is true. Without this claim, signing in as an existing, not yet linked
-   admin is refused.
-7. **Restrict sign-in** — **Enterprise applications → (your app) → Properties →
-   Assignment required? = Yes**, then assign users/groups under **Users and groups**.
-   Otherwise any tenant user whose groups map to a role, or who gets the default role,
-   can sign in.
+4. **Certificates & secrets → New client secret**: copy the secret **value**.
+5. **Groups claim** (needed for group → role mapping): **Token configuration → Add groups claim**, emitted on the
+   **ID** token. Entra sends group **object IDs (GUIDs)**, not names — use those GUIDs as keys in the Admin SSO
+   group → role map. Without it, everyone gets the Admin SSO default role (sign-in is refused if none is set).
+6. **Email verification**: **Token configuration → Add optional claim → ID → `xms_edov`**. Entra's `email` is
+   editable in the tenant, so it counts as verified only when `xms_edov` is true. Without this claim, signing in
+   as an existing admin that is not linked yet is refused.
+7. **Restrict sign-in**: **Enterprise applications → (your app) → Properties → Assignment required? = Yes**, then
+   assign users/groups under **Users and groups**. Otherwise any user in the directory whose groups map to a role,
+   or who gets the default role, can sign in.
 
-## Configuration
+### Configuration
 
 Admin → Stores → Configuration → **DMLab → Admin SSO**.
 
-**General** (`dmlab_admin_sso/general/*`):
+| Field | Path | Value |
+|---|---|---|
+| Enable Admin SSO | `general/enabled` | Yes |
+| Identity Provider | `general/active_provider` | Microsoft Entra ID |
+| Client ID / Client Secret | `general/client_id`, `general/client_secret` | from the Entra app (secret **value**) |
+| Tenant | `azure/tenant` | Directory (tenant) GUID or a verified domain of your directory; shown when Entra is selected |
 
-| Field | Value |
-|---|---|
-| Enable Admin SSO | Yes |
-| Identity Provider | Microsoft Entra ID |
-| Client ID | Application (client) ID from the Entra app |
-| Client Secret | client secret value from the Entra app |
-
-**Microsoft Entra ID** (`dmlab_admin_sso/azure/*`, shown when Entra is selected):
-
-| Field | Value |
-|---|---|
-| Tenant | Directory (tenant) GUID or a verified domain of your directory (single-tenant only) |
-
-The discovery URL is derived from the tenant:
-`https://login.microsoftonline.com/<tenant>/v2.0/.well-known/openid-configuration`.
-Admin SSO is single-tenant only — the multi-tenant meta values `common`/`organizations`
-advertise a templated `{tenantid}` issuer that never matches a real token, so they are
-rejected.
-
-A verified domain (e.g. `contoso.com`) works: its discovery document advertises the
-tenant-GUID issuer, so the discovery issuer check is relaxed for domain tenants only (token
-`iss` is still validated). The GUID is preferred.
-
-Group → role mapping and enforce-SSO/break-glass are configured in `admin-sso`; see
-that module's README.
+Paths are under `dmlab_admin_sso/`. The tenant must be a single directory: `common` / `organizations` /
+`consumers` are rejected. The directory GUID is preferred; a verified domain (e.g. `contoso.com`) works too.
+Group → role mapping and enforce-SSO/break-glass are set in [admin-sso](https://github.com/dmlab-work/module-admin-sso).
 
 ### Users without an email
 
-If a user has no `mail` attribute (no `email` claim), `preferred_username`, then `upn`, is
-used as the email when it is a valid address. Such an identity is always unverified: it
-can JIT-create a new admin; if an admin with that email already exists, the login is refused.
+If a user has no `mail` attribute (no `email` claim), `preferred_username`, then `upn`, is used as the email when
+it is a valid address. Such a sign-in counts as unverified: it can create a new admin, but if an admin with that
+email already exists, the sign-in is refused.
 
 ### Groups overage
 
-Entra omits the `groups` claim when a user belongs to more than ~200 groups, sending a
-`_claim_names`/`_claim_sources` reference to Microsoft Graph instead (or `hasgroups: true`
-in the implicit flow). The groups are then incomplete, so the SSO login is **refused** with a
-message instead of falling back to the default role; groups are not fetched from Graph. Limit the
-groups in the token: in the app registration's Token configuration emit **Groups assigned to the
-application** (and assign the role groups to the enterprise app), or use group filtering.
+When a user belongs to more than ~200 groups, Entra leaves the groups out of the token. The groups are then
+incomplete, so the sign-in is **refused** with a message instead of falling back to the default role. Limit the
+groups in the token: under Token configuration emit **Groups assigned to the application** (and assign the role
+groups to the enterprise app), or use group filtering.
 
 ## Requirements
 
-- Magento **2.4.x** (tested on 2.4.9)
-- PHP **8.3 – 8.5**
+- Magento 2.4.7+ · PHP 8.2–8.5
+- A single-tenant Microsoft Entra ID directory where you can register an app
+- An HTTPS admin URL (Entra web redirect URIs must be HTTPS)
+- Outbound HTTPS from Magento to `login.microsoftonline.com`
+- Admin SSO and the SSO engine (`dmlab/module-admin-sso`, `dmlab/module-sso-core`) — installed automatically
 
-## Part of the DMLab identity suite
+Pairs with [admin-scim-azure](https://github.com/dmlab-work/module-admin-scim-azure) — Entra pushes admin user
+create/update/deactivate to Magento · built on [admin-sso](https://github.com/dmlab-work/module-admin-sso).
 
-| Repo | Role |
-|------|------|
-| `sso-core` | Shared OIDC engine (installed automatically) |
-| `admin-sso` · `admin-sso-<idp>` | Admin-panel SSO login |
-| `customer-sso` · `customer-sso-<idp>` | Storefront SSO login |
-| `admin-scim` · `admin-scim-<idp>` | Admin-user provisioning (SCIM 2.0) |
+## Architecture
+
+This module is the Microsoft Entra ID provider plugin for `admin-sso`. `Model/EntraPreset.php` supplies the
+discovery URL built from the tenant (`https://login.microsoftonline.com/<tenant>/v2.0/.well-known/openid-configuration`),
+scopes `openid profile email`, the `groups` claim and the login-button label and logo; `etc/di.xml` registers it
+into admin-sso's `PresetRegistry`. The preset also:
+
+- treats `email` as verified only when `xms_edov` is true;
+- relaxes the discovery issuer check for verified-domain tenants (their discovery document advertises the
+  tenant-GUID issuer); the token `iss` is still validated.
+
+Two before-plugins on `sso-core`'s `IdentityFactory::create`, active for the Entra preset only:
+`Plugin/EntraEmailFallback.php` (missing `email` → `preferred_username` / `upn`, unverified) and
+`Plugin/EntraGroupsOverage.php` (implicit-flow `hasgroups` → incomplete groups, like the `_claim_names` overage).
+The OIDC protocol lives in `sso-core`; admin users, roles and the login flow live in `admin-sso`.
 
 ## License
 
