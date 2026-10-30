@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2
+
+- Installs on Magento 2.4.7+ and PHP 8.2–8.5 (`magento/framework ^103.0.7`, `magento/module-config ^101.2.7`).
+- CI tests PHP 8.2–8.5 and no longer notifies Packagist on install.
+- Composer metadata: keywords, homepage, support links.
+- README: plain intro, screenshot, install line, requirements.
+
 ## 0.2.1
 
 - **Groups overage refuses the login** with a message (was: fall back to the default role); the implicit-flow `hasgroups` claim is handled too.
