@@ -37,8 +37,8 @@ class ComposerTest extends TestCase
     public static function requiredPackages(): array
     {
         return [
-            'sso-core' => ['dmlab/module-sso-core', '^0.2.2'],
-            'admin-sso' => ['dmlab/module-admin-sso', '^0.2.2'],
+            'sso-core' => ['dmlab/module-sso-core', '^0.2.2||^0.3.0'],
+            'admin-sso' => ['dmlab/module-admin-sso', '^0.2.2||^0.3.0'],
             'module-config' => ['magento/module-config', '^101.2.7'],
             'php' => ['php', '~8.2.0||~8.3.0||~8.4.0||~8.5.0'],
             'framework' => ['magento/framework', '^103.0.7'],

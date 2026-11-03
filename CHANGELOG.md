@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+
+- Accepts `dmlab/module-sso-core` and `dmlab/module-admin-sso` 0.3.
+
 ## 0.2.2
 
 - Installs on Magento 2.4.7+ and PHP 8.2–8.5 (`magento/framework ^103.0.7`, `magento/module-config ^101.2.7`).

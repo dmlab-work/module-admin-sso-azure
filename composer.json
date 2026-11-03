@@ -3,7 +3,7 @@
     "description": "Microsoft Entra ID (Azure AD) sign-in for the Magento 2 admin: staff log in with their Microsoft work account. Installs admin-sso and sso-core automatically.",
     "type": "magento2-module",
     "license": "OSL-3.0",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "keywords": [
         "magento2",
         "magento2-module",
@@ -27,8 +27,8 @@
         "php": "~8.2.0||~8.3.0||~8.4.0||~8.5.0",
         "magento/framework": "^103.0.7",
         "magento/module-config": "^101.2.7",
-        "dmlab/module-sso-core": "^0.2.2",
-        "dmlab/module-admin-sso": "^0.2.2"
+        "dmlab/module-sso-core": "^0.2.2||^0.3.0",
+        "dmlab/module-admin-sso": "^0.2.2||^0.3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5||^12.5"

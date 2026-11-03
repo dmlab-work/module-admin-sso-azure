@@ -73,14 +73,14 @@ class PackagingTest extends TestCase
         self::assertSame($sorted, $positions);
     }
 
-    public function testVersionIs022AndFirstInChangelog(): void
+    public function testVersionIs023AndFirstInChangelog(): void
     {
         $root = dirname(__DIR__, 2);
         $composer = json_decode((string)file_get_contents($root . '/composer.json'), true);
-        self::assertSame('0.2.2', $composer['version']);
+        self::assertSame('0.2.3', $composer['version']);
 
         preg_match('/^## (.+)$/m', (string)file_get_contents($root . '/CHANGELOG.md'), $m);
-        self::assertSame('0.2.2', $m[1] ?? null);
+        self::assertSame('0.2.3', $m[1] ?? null);
     }
 
     private function readme(): string
